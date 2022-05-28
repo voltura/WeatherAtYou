@@ -4,6 +4,7 @@
 @inject IJSRuntime JS
 @using WeatherAtYou.Data
 @inject WeatherDataService WeatherService
+@inject LocationService MyLocationService
 
 <PageTitle>Weather from current geolocation</PageTitle>
 
@@ -13,6 +14,7 @@
 
 @code {
     private WeatherAtYou.Data.WeatherData? weatherData;
+    private WeatherAtYou.Data.Location? location;
     //private Data.Parameter? parameter;
     private double? celcius;
     //private ElementReference weatherInfo;
@@ -39,7 +41,9 @@
         celcius = weatherData?.TimeSeries.First().Parameters.Where(x => x.Unit == "Cel").Select(x => x.Values).First().ToArray()[0];
         //name = $"It's {celcius}˚C.";
         //await JS.InvokeVoidAsync("setElementText1", weatherInfo, $"{name}");
-        return $"It's {(celcius is null ? "unknown temperature" : Math.Round((decimal)celcius)+"˚C")} at your location right now.";
+        location = await MyLocationService.GetLocationAsync(longDbl, latDbl);
+        var place = (location != null && !string.IsNullOrEmpty(location.Features.First().Properties.Address.Suburb) ) ?  $"in {location.Features.First().Properties.Address.Suburb} ({location.Features.First().Properties.Address.City})" : "at your location";
+        return $"It's {(celcius is null ? "unknown temperature" : Math.Round((decimal)celcius)+"˚C")} {place} right now.";
     }
 
     public void Dispose()
