@@ -17,6 +17,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherDataService>();
 builder.Services.AddSingleton<LocationService>();
+
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
