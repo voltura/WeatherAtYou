@@ -22,6 +22,12 @@ class WeatherHelper {
         };
         navigator.geolocation.getCurrentPosition(success, error, options);
     }
+
+    static setBackground(bgColor) {
+        const pizza = document.querySelector('body');
+        pizza.setAttribute('style', 'background-color: '+bgColor+';');
+    }
 }
 
 window.WeatherHelper = WeatherHelper;
+

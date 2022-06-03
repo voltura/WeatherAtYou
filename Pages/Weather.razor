@@ -40,7 +40,11 @@
         //parameter = weatherData?.TimeSeries.First().Parameters.Where(x => x.Unit == "Cel").First();
         celcius = weatherData?.TimeSeries.First().Parameters.Where(x => x.Unit == "Cel").Select(x => x.Values).First().ToArray()[0];
         //name = $"It's {celcius}˚C.";
+        double celPercent = (double) (celcius is null ? 0 : celcius) / 100.0;
         //await JS.InvokeVoidAsync("setElementText1", weatherInfo, $"{name}");
+        System.Drawing.Color weatherColor = TemperatureRange(celPercent);
+
+        await JS.InvokeVoidAsync("WeatherHelper.setBackground", $"rgba({weatherColor.R},{weatherColor.G},{weatherColor.B},{weatherColor.A})");
         location = await MyLocationService.GetLocationAsync(longDbl, latDbl);
         var place = (location != null && !string.IsNullOrEmpty(location.Features.First().Properties.Address.Suburb) ) ?  $"in {location.Features.First().Properties.Address.Suburb} ({location.Features.First().Properties.Address.City})" : "at your location";
         return $"It's {(celcius is null ? "unknown temperature" : Math.Round((decimal)celcius)+"˚C")} {place} right now.";
@@ -49,5 +53,44 @@
     public void Dispose()
     {
         dotNetObjectRef?.Dispose();
+    }
+
+    public static System.Drawing.Color TemperatureRange(double BlueToRed)
+    {
+        double r, g, b;
+
+        // blue to cyan
+        if (BlueToRed < -0.5)
+        {
+            r = 0;
+            g = 2 + BlueToRed * 2;
+            b = 1;
+        }
+
+        // cyan to green
+        else if (BlueToRed < 0)
+        {
+            r = 0;
+            g = 1;
+            b = -BlueToRed * 2;
+        }
+
+        // green to yellow
+        else if (BlueToRed < 0.5)
+        {
+            r = BlueToRed * 2;
+            g = 1;
+            b = 0;
+        }
+
+        // yellow to red
+        else
+        {
+            r = 1;
+            g = 2 - BlueToRed * 2;
+            b = 0;
+        }
+
+        return System.Drawing.Color.FromArgb((int)(r * 255), (int)(g * 255), (int)(b * 255));
     }
 }
